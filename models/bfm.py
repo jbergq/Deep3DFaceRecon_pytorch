@@ -95,6 +95,9 @@ class ParametricFaceModel:
         batch_size = id_coeff.shape[0]
         id_part = torch.einsum('ij,aj->ai', self.id_base, id_coeff)
         exp_part = torch.einsum('ij,aj->ai', self.exp_base, exp_coeff)
+
+        id_part = id_part.mean(dim=0, keepdim=True).repeat(batch_size, 1)  # HACK: Compute average shape.
+
         face_shape = id_part + exp_part + self.mean_shape.reshape([1, -1])
         return face_shape.reshape([batch_size, -1, 3])
     
@@ -271,7 +274,8 @@ class ParametricFaceModel:
             'gamma': gammas,
             'trans': translations
         }
-    def compute_for_render(self, coeffs):
+
+    def compute_for_render(self, coef_dict):
         """
         Return:
             face_vertex     -- torch.tensor, size (B, N, 3), in camera coordinate
@@ -280,7 +284,6 @@ class ParametricFaceModel:
         Parameters:
             coeffs          -- torch.tensor, size (B, 257)
         """
-        coef_dict = self.split_coeff(coeffs)
         face_shape = self.compute_shape(coef_dict['id'], coef_dict['exp'])
         rotation = self.compute_rotation(coef_dict['angle'])
 

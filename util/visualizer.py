@@ -171,7 +171,7 @@ class MyVisualizer:
                 log_file.write('================ Training Loss (%s) ================\n' % now)
 
 
-    def display_current_results(self, visuals, total_iters, epoch, dataset='train', save_results=False, count=0, name=None,
+    def display_current_results(self, visuals, total_iters, epoch, dataset='train', save_results=False, count=0, names=None,
             add_image=True):
         """Display current results on tensorboad; save current results to an HTML file.
 
@@ -195,8 +195,8 @@ class MyVisualizer:
                     if not os.path.isdir(save_path):
                         os.makedirs(save_path)
 
-                    if name is not None:
-                        img_path = os.path.join(save_path, '%s.png' % name)
+                    if names is not None:
+                        img_path = os.path.join(save_path, '%s.png' % names[i])
                     else:
                         img_path = os.path.join(save_path, '%s_%03d.png' % (label, i + count))
                     util.save_image(image_numpy, img_path)

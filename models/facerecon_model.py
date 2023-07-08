@@ -132,15 +132,16 @@ class FaceReconModel(BaseModel):
         self.image_paths = input['im_paths'] if 'im_paths' in input else None
 
     def forward(self):
-        output_coeff = self.net_recon(self.input_img)
         self.facemodel.to(self.device)
-        self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm = \
-            self.facemodel.compute_for_render(output_coeff)
-        self.pred_mask, _, self.pred_face = self.renderer(
-            self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)
-        
+
+        output_coeff = self.net_recon(self.input_img)
         self.pred_coeffs_dict = self.facemodel.split_coeff(output_coeff)
 
+        for i_img in range(self.input_img.shape[0]):
+            self.pred_vertex, self.pred_tex, self.pred_color, self.pred_lm = \
+                self.facemodel.compute_for_render(self.pred_coeffs_dict)
+            self.pred_mask, _, self.pred_face = self.renderer(
+                self.pred_vertex, self.facemodel.face_buf, feat=self.pred_color)
 
     def compute_losses(self):
         """Calculate losses, gradients, and update network weights; called in every training iteration"""
